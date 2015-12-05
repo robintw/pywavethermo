@@ -1,9 +1,10 @@
 import sys
+from pprint import pprint
 import json
 
 import sleekxmpp
 
-from utils import decode
+from utils import decode, parse_on_off
 
 # Python versions before 3.0 do not use UTF-8 encoding
 # by default. To ensure that Unicode is handled properly
@@ -68,27 +69,54 @@ class WaveMessageBot(sleekxmpp.ClientXMPP):
             return
         else:
             to_decode = spl[1].strip()
+
+            # Decode the encrypted message
             data = decode(to_decode)
+
+            # For some reason we have a load of null characters at the end
+            # of the message, so strip these out
             data = data.replace(b'\x00', b'')
+
+            # 'decode' from bytes to str, with UTF-8 encoding
+            # (a different sort of 'decode' to above!)
             data = data.decode('utf-8')
             if len(data) > 0:
                 data = json.loads(data)['value']
-                #print 'Current Set Point', data['TSP']
-                set_point = data['TSP']
-                #print 'Current temperature', data['IHT']
-                current_temp = data['IHT']
+                pprint(data)
+
+                # Temperature set point (ie. temperature it is aiming for)
+                self.set_point = float(data['TSP'])
+
+                # Current measured temperature at thermostat
+                self.current_temp = float(data['IHT'])
+
+                # Is hot water on or off
+                self.hot_water = parse_on_off(data['DHW'])
+
+                # Program mode: 'manual' or 'clock'
+                self.program_mode = data['UMD']
+
+                # Temperature Override Duration
+                self.temp_override_duration = float(data['TOD'])
+
+                # Current Switch Point
+                # TODO: No idea what this is...it was coming up as 39
+                # for me...and I'm pretty sure it's not 39 degrees C!
+                self.current_switch_point = float(data['CSP'])
+
+                self.temp_override_on = parse_on_off(data['TOR'])
+
+                self.holiday_mode = parse_on_off(data['HMD'])
+
+                self.day_as_sunday = parse_on_off(data['DAS'])
+
+                self.tomorrow_as_sunday = parse_on_off(data['TAS'])
+
+                # Is the boiler on or off (ie. flame on or off)
                 if data['BAI'] == 'No':
-                    boiler_on = 0
-                    #print 'Boiler off'
-                elif data['BAI'] == 'CH':
-                    boiler_on = 1
-                    #print 'Boiler on',
-
-                #print("%s,%s,%s,%s" % (data['CTD'], current_temp, set_point, boiler_on))
-
-                self.current_temp = current_temp
-                self.set_point = set_point
-                self.boiler_on = boiler_on
+                    self.boiler_on = 0
+                elif data['BAI'] == 'CH' or data['BAI'] == 'HW':
+                    self.boiler_on = 1
 
                 self.disconnect()
 

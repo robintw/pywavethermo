@@ -10,6 +10,12 @@ password = "***REMOVED***".encode()
 secret = b'X\xf1\x8dp\xf6g\xc9\xc7\x9e\xf7\xdeC[\xf0\xf9\xb1U;\xbbna\x81b\x12\xab\x80\xe5\xb0\xd3Q\xfb\xb1'
 
 
+def parse_on_off(s):
+    if s == 'on':
+        return True
+    else:
+        return False
+
 def get_md5(data):
     m = hashlib.md5()
     m.update(data)
