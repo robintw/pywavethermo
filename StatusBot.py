@@ -5,6 +5,8 @@ import json
 import sleekxmpp
 
 from utils import decode, parse_on_off
+from base_bot import BaseWaveMessageBot
+
 
 # Python versions before 3.0 do not use UTF-8 encoding
 # by default. To ensure that Unicode is handled properly
@@ -17,54 +19,18 @@ else:
     raw_input = input
 
 
-class WaveMessageBot(sleekxmpp.ClientXMPP):
-    """
-    A basic SleekXMPP bot that will log in, send a message,
-    and then log out.
-    """
+class StatusBot(BaseWaveMessageBot):
     current_temp = None
     set_point = None
     boiler_on = None
 
     def __init__(self):
-        jid = "rrccontact_458921440@wa2-mz36-qrmzh6.bosch.de"
-        password = "Ct7ZR03b_***REMOVED***"
-        recipient = "rrcgateway_458921440@wa2-mz36-qrmzh6.bosch.de"
-        message = "GET /ecus/rrc/uiStatus HTTP /1.0\nUser-Agent: NefitEasy"
-        #message = "PUT /heatingCircuits/hc1/manualTempOverride/temperature HTTP:/1.0\nContent-Type: application/json\nContent-Length: 25\nUser-Agent: NefitEasy\n\n\n\nXmuIR7wCfDZpPrPkrb/CqQ==\n"
-
-        sleekxmpp.ClientXMPP.__init__(self, jid, password)
-
-        # The message we wish to send, and the JID that
-        # will receive it.
-        self.recipient = recipient
-        self.msg = message
-
-        self.add_event_handler("session_start", self.start)
-        self.add_event_handler("message", self.message)
-
-    def connect(self):
-        return sleekxmpp.ClientXMPP.connect(self, ('wa2-mz36-qrmzh6.bosch.de', 5222))
-
-    def start(self, event):
-        """
-        Process the session_start event.
-
-        Send a message to request the status
-        """
-        self.send_presence()
-        self.get_roster()
-
-        self.send_message(mto=self.recipient,
-                          mbody=self.msg,
-                          mtype='chat')
+        super().__init__("GET /ecus/rrc/uiStatus HTTP /1.0\nUser-Agent: NefitEasy")
 
     def message(self, msg):
         """
         Process a message once it has been received
         """
-        print(msg)
-
         spl = str(msg['body']).split("\n\n")
 
         if len(spl) < 2:
@@ -75,8 +41,6 @@ class WaveMessageBot(sleekxmpp.ClientXMPP):
 
             # Decode the encrypted message
             data = decode(to_decode)
-
-            print(data)
 
             # For some reason we have a load of null characters at the end
             # of the message, so strip these out
@@ -126,11 +90,15 @@ class WaveMessageBot(sleekxmpp.ClientXMPP):
                 self.disconnect()
 
 if __name__ == '__main__':
-    wave = WaveMessageBot()
+    wave = StatusBot()
+    wave.run()
+    print('Test')
+    print(wave.program_mode)
+    #wave.run()
 
-    # Connect to the Bosch XMPP server and start processing messages
-    if wave.connect():
-        wave.process(block=True)
-        print(wave.set_point, wave.current_temp, wave.boiler_on)
-    else:
-        print("Unable to connect.")
+    # # Connect to the Bosch XMPP server and start processing messages
+    # if wave.connect():
+    #     wave.process(block=True)
+    #     print(wave.set_point, wave.current_temp, wave.boiler_on)
+    # else:
+    #     print("Unable to connect.")
