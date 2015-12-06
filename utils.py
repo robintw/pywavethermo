@@ -30,13 +30,19 @@ def create_message(url, value):
 
     return msg
 
-    #"PUT /heatingCircuits/hc1/manualTempOverride/status HTTP:/1.0\nContent-Type: application/json\nContent-Length: 25\nUser-Agent: NefitEasy\n\n\n\n9Z/4tNthJEwU4HhAaReEFQ==n"
-
 def get_md5(data):
     m = hashlib.md5()
     m.update(data)
 
     return m.digest()
+
+def get_key():
+    abyte1 = get_md5(access + secret)
+    abyte2 = get_md5(secret + password)
+
+    key = abyte1 + abyte2
+
+    return key
 
 def encode(s):
     abyte1 = get_md5(access + secret)

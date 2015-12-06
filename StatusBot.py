@@ -4,8 +4,8 @@ import json
 
 import sleekxmpp
 
-from utils import decode, parse_on_off
-from base_bot import BaseWaveMessageBot
+from utils import parse_on_off
+from BaseBot import BaseWaveMessageBot
 
 
 # Python versions before 3.0 do not use UTF-8 encoding
@@ -24,8 +24,8 @@ class StatusBot(BaseWaveMessageBot):
     set_point = None
     boiler_on = None
 
-    def __init__(self):
-        super().__init__("GET /ecus/rrc/uiStatus HTTP /1.0\nUser-Agent: NefitEasy")
+    def __init__(self, serial_number, access_code, password):
+        super().__init__(serial_number, access_code, password, "GET /ecus/rrc/uiStatus HTTP /1.0\nUser-Agent: NefitEasy")
 
     def message(self, msg):
         """
@@ -40,7 +40,7 @@ class StatusBot(BaseWaveMessageBot):
             to_decode = spl[1].strip()
 
             # Decode the encrypted message
-            data = decode(to_decode)
+            data = self.decode(to_decode)
 
             # For some reason we have a load of null characters at the end
             # of the message, so strip these out
@@ -89,8 +89,13 @@ class StatusBot(BaseWaveMessageBot):
 
                 self.disconnect()
 
+    def update(self):
+        self.run()
+
 if __name__ == '__main__':
-    wave = StatusBot()
+    wave = StatusBot(serial_number='458921440',
+                     access_code='E6z5sHWaxiQYCwfU',
+                     password='Elmer2301i')
     wave.run()
     print('Test')
     print(wave.program_mode)
