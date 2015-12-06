@@ -31,6 +31,7 @@ class WaveMessageBot(sleekxmpp.ClientXMPP):
         password = "Ct7ZR03b_E6z5sHWaxiQYCwfU"
         recipient = "rrcgateway_458921440@wa2-mz36-qrmzh6.bosch.de"
         message = "GET /ecus/rrc/uiStatus HTTP /1.0\nUser-Agent: NefitEasy"
+        #message = "PUT /heatingCircuits/hc1/manualTempOverride/temperature HTTP:/1.0\nContent-Type: application/json\nContent-Length: 25\nUser-Agent: NefitEasy\n\n\n\nXmuIR7wCfDZpPrPkrb/CqQ==\n"
 
         sleekxmpp.ClientXMPP.__init__(self, jid, password)
 
@@ -62,6 +63,8 @@ class WaveMessageBot(sleekxmpp.ClientXMPP):
         """
         Process a message once it has been received
         """
+        print(msg)
+
         spl = str(msg['body']).split("\n\n")
 
         if len(spl) < 2:
@@ -72,6 +75,8 @@ class WaveMessageBot(sleekxmpp.ClientXMPP):
 
             # Decode the encrypted message
             data = decode(to_decode)
+
+            print(data)
 
             # For some reason we have a load of null characters at the end
             # of the message, so strip these out
