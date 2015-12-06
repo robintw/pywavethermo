@@ -23,8 +23,8 @@ def create_message(url, value):
 
     j = j + '\x00' * (16 - remainder)
 
-    print('URL: %s' % url)
-    print('JSON: %s' % j)
+    #print('URL: %s' % url)
+    #print('JSON: %s' % j)
 
     msg = "PUT %s HTTP:/1.0\nContent-Type: application/json\nContent-Length: 25\nUser-Agent: NefitEasy\n\n\n\n%s\n" % (url, encode(j).decode('utf-8'))
 

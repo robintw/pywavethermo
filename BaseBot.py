@@ -18,9 +18,6 @@ else:
 
 
 class BaseWaveMessageBot(sleekxmpp.ClientXMPP):
-    current_temp = None
-    set_point = None
-    boiler_on = None
 
     def __init__(self, message):
         jid = "rrccontact_458921440@wa2-mz36-qrmzh6.bosch.de"
@@ -29,6 +26,8 @@ class BaseWaveMessageBot(sleekxmpp.ClientXMPP):
         #message = "GET /ecus/rrc/uiStatus HTTP /1.0\nUser-Agent: NefitEasy"
 
         sleekxmpp.ClientXMPP.__init__(self, jid, password)
+
+        self.connected = False
 
         # The message we wish to send, and the JID that
         # will receive it.
@@ -39,16 +38,25 @@ class BaseWaveMessageBot(sleekxmpp.ClientXMPP):
         self.add_event_handler("message", self.message)
 
     def connect(self):
+        self.connected = True
         return sleekxmpp.ClientXMPP.connect(self, ('wa2-mz36-qrmzh6.bosch.de', 5222))
 
-    def start(self, event):
-        """
-        Process the session_start event.
+    def disconnect(self):
+        self.connected = False
+        return sleekxmpp.ClientXMPP.disconnect(self)
 
-        Send a message to request the status
-        """
+    def run(self):
+        self.connect()
+        self.go()
+        self.process(block=True)
+
+    def start(self, event):
         self.send_presence()
         self.get_roster()
+
+    def go(self):
+        if not self.connected:
+            self.connect()
 
         self.send_message(mto=self.recipient,
                           mbody=self.msg,

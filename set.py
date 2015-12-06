@@ -18,6 +18,7 @@ else:
 
 
 class WaveMessageBot(sleekxmpp.ClientXMPP):
+
     current_temp = None
     set_point = None
     boiler_on = None
