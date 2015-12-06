@@ -30,12 +30,18 @@ class SetBot(BaseWaveMessageBot):
         """
         Process a message once it has been received
         """
+        print(msg)
         if 'No Content' in msg['body']:
             self.disconnect()
         elif 'Bad Request' in msg['body']:
             self.disconnect()
             print('ERROR: Bad Request')
             raise ValueError
+
+    def post_message(self, url, value):
+        self.set_message(url, value)
+        print(self.msg)
+        self.run()
 
 if __name__ == '__main__':
     wave = SetBot(serial_number='458921440',
