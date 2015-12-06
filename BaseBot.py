@@ -1,41 +1,39 @@
-import sys
-from pprint import pprint
-import json
+import base64
+from Crypto.Cipher import AES
 
 import sleekxmpp
 
-from utils import decode, parse_on_off, create_message
-
-# Python versions before 3.0 do not use UTF-8 encoding
-# by default. To ensure that Unicode is handled properly
-# throughout SleekXMPP, we will set the default encoding
-# ourselves to UTF-8.
-if sys.version_info < (3, 0):
-    reload(sys)
-    sys.setdefaultencoding('utf8')
-else:
-    raw_input = input
-
+from utils import get_md5
 
 class BaseWaveMessageBot(sleekxmpp.ClientXMPP):
 
-    def __init__(self, message):
-        jid = "rrccontact_458921440@wa2-mz36-qrmzh6.bosch.de"
-        password = "Ct7ZR03b_***REMOVED***"
-        recipient = "rrcgateway_458921440@wa2-mz36-qrmzh6.bosch.de"
-        #message = "GET /ecus/rrc/uiStatus HTTP /1.0\nUser-Agent: NefitEasy"
+    secret = b'X\xf1\x8dp\xf6g\xc9\xc7\x9e\xf7\xdeC[\xf0\xf9\xb1U;\xbbna\x81b\x12\xab\x80\xe5\xb0\xd3Q\xfb\xb1'
 
-        sleekxmpp.ClientXMPP.__init__(self, jid, password)
 
-        self.connected = False
+    def __init__(self, serial_number, access_code, password, message):
 
-        # The message we wish to send, and the JID that
-        # will receive it.
-        self.recipient = recipient
+        jid = "rrccontact_%s@wa2-mz36-qrmzh6.bosch.de" % serial_number
+        connection_password = "Ct7ZR03b_%s" % access_code
+
+        sleekxmpp.ClientXMPP.__init__(self, jid, connection_password)
+
+        self.recipient = "rrcgateway_%s@wa2-mz36-qrmzh6.bosch.de" % serial_number
         self.msg = message
 
         self.add_event_handler("session_start", self.start)
         self.add_event_handler("message", self.message)
+
+        self.connected = False
+
+        #print('Access code:')
+        #print(access_code.encode())
+        #print('Password:')
+        #print(password.encode())
+
+        abyte1 = get_md5(access_code.encode() + self.secret)
+        abyte2 = get_md5(self.secret + password.encode())
+
+        self.key = abyte1 + abyte2
 
     def connect(self):
         self.connected = True
@@ -61,3 +59,36 @@ class BaseWaveMessageBot(sleekxmpp.ClientXMPP):
         self.send_message(mto=self.recipient,
                           mbody=self.msg,
                           mtype='chat')
+
+    ##
+    ## Now functions for encoding/decoding and creating messages
+    ##
+    def set_message(self, url, value):
+        j = '{"value":%s}' % (repr(value))
+
+        remainder = len(j) % 16
+
+        j = j + '\x00' * (16 - remainder)
+
+        #print('URL: %s' % url)
+        #print('JSON: %s' % j)
+
+        self.msg = "PUT %s HTTP:/1.0\nContent-Type: application/json\nContent-Length: 25\nUser-Agent: NefitEasy\n\n\n\n%s\n" % (url, self.encode(j).decode('utf-8'))
+
+    def encode(self, s):
+        a = AES.new(self.key)
+        a = AES.new(self.key, AES.MODE_ECB)
+        res = a.encrypt(s)
+
+        encoded = base64.b64encode(res)
+
+        return encoded
+
+    def decode(self, data):
+        decoded = base64.b64decode(data)
+
+        a = AES.new(self.key)
+        a = AES.new(self.key, AES.MODE_ECB)
+        res = a.decrypt(decoded)
+
+        return res
