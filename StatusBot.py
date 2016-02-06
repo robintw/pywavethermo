@@ -1,4 +1,3 @@
-import sys
 import json
 
 from utils import parse_on_off
