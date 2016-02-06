@@ -91,19 +91,3 @@ class StatusBot(BaseWaveMessageBot):
 
     def update(self):
         self.run()
-
-if __name__ == '__main__':
-    wave = StatusBot(serial_number='458921440',
-                     access_code='E6z5sHWaxiQYCwfU',
-                     password='Elmer2301i')
-    wave.run()
-    print('Test')
-    print(wave.program_mode)
-    #wave.run()
-
-    # # Connect to the Bosch XMPP server and start processing messages
-    # if wave.connect():
-    #     wave.process(block=True)
-    #     print(wave.set_point, wave.current_temp, wave.boiler_on)
-    # else:
-    #     print("Unable to connect.")

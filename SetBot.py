@@ -42,11 +42,3 @@ class SetBot(BaseWaveMessageBot):
         self.set_message(url, value)
         print(self.msg)
         self.run()
-
-if __name__ == '__main__':
-    wave = SetBot(serial_number='458921440',
-                  access_code='E6z5sHWaxiQYCwfU',
-                  password='Elmer2301i')
-
-    wave.set_message("/heatingCircuits/hc1/usermode", 'manual')
-    wave.run()
