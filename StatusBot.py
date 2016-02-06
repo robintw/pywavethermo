@@ -1,23 +1,8 @@
 import sys
-from pprint import pprint
 import json
-
-import sleekxmpp
 
 from utils import parse_on_off
 from BaseBot import BaseWaveMessageBot
-
-
-# Python versions before 3.0 do not use UTF-8 encoding
-# by default. To ensure that Unicode is handled properly
-# throughout SleekXMPP, we will set the default encoding
-# ourselves to UTF-8.
-if sys.version_info < (3, 0):
-    reload(sys)
-    sys.setdefaultencoding('utf8')
-else:
-    raw_input = input
-
 
 class StatusBot(BaseWaveMessageBot):
     current_temp = None
@@ -68,9 +53,6 @@ class StatusBot(BaseWaveMessageBot):
                 # Temperature Override Duration
                 self.temp_override_duration = float(self.data['TOD'])
 
-                # Current Switch Point
-                # TODO: No idea what this is...it was coming up as 39
-                # for me...and I'm pretty sure it's not 39 degrees C!
                 self.current_switch_point = float(self.data['CSP'])
 
                 self.temp_override_on = parse_on_off(self.data['TOR'])
