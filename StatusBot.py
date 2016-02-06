@@ -50,41 +50,41 @@ class StatusBot(BaseWaveMessageBot):
             # (a different sort of 'decode' to above!)
             data = data.decode('utf-8')
             if len(data) > 0:
-                data = json.loads(data)['value']
-                pprint(data)
+                self.data = json.loads(data)['value']
+                #pprint(data)
 
                 # Temperature set point (ie. temperature it is aiming for)
-                self.set_point = float(data['TSP'])
+                self.set_point = float(self.data['TSP'])
 
                 # Current measured temperature at thermostat
-                self.current_temp = float(data['IHT'])
+                self.current_temp = float(self.data['IHT'])
 
                 # Is hot water on or off
-                self.hot_water = parse_on_off(data['DHW'])
+                self.hot_water = parse_on_off(self.data['DHW'])
 
                 # Program mode: 'manual' or 'clock'
-                self.program_mode = data['UMD']
+                self.program_mode = self.data['UMD']
 
                 # Temperature Override Duration
-                self.temp_override_duration = float(data['TOD'])
+                self.temp_override_duration = float(self.data['TOD'])
 
                 # Current Switch Point
                 # TODO: No idea what this is...it was coming up as 39
                 # for me...and I'm pretty sure it's not 39 degrees C!
-                self.current_switch_point = float(data['CSP'])
+                self.current_switch_point = float(self.data['CSP'])
 
-                self.temp_override_on = parse_on_off(data['TOR'])
+                self.temp_override_on = parse_on_off(self.data['TOR'])
 
-                self.holiday_mode = parse_on_off(data['HMD'])
+                self.holiday_mode = parse_on_off(self.data['HMD'])
 
-                self.day_as_sunday = parse_on_off(data['DAS'])
+                self.day_as_sunday = parse_on_off(self.data['DAS'])
 
-                self.tomorrow_as_sunday = parse_on_off(data['TAS'])
+                self.tomorrow_as_sunday = parse_on_off(self.data['TAS'])
 
                 # Is the boiler on or off (ie. flame on or off)
-                if data['BAI'] == 'No':
+                if self.data['BAI'] == 'No':
                     self.boiler_on = 0
-                elif data['BAI'] == 'CH' or data['BAI'] == 'HW':
+                elif self.data['BAI'] == 'CH' or self.data['BAI'] == 'HW':
                     self.boiler_on = 1
 
                 self.disconnect()

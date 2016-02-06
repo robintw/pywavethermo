@@ -33,7 +33,6 @@ class WaveThermo:
             self.setter.post_message("/heatingCircuits/hc1/manualTempOverride/status", 'on')
 
     def override(self, b):
-        print('in override')
         if b:
             self.setter.post_message("/heatingCircuits/hc1/manualTempOverride/status", 'on')
         else:

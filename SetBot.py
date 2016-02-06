@@ -30,7 +30,6 @@ class SetBot(BaseWaveMessageBot):
         """
         Process a message once it has been received
         """
-        print(msg)
         if 'No Content' in msg['body']:
             self.disconnect()
         elif 'Bad Request' in msg['body']:
@@ -40,5 +39,4 @@ class SetBot(BaseWaveMessageBot):
 
     def post_message(self, url, value):
         self.set_message(url, value)
-        print(self.msg)
         self.run()

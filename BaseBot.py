@@ -25,11 +25,6 @@ class BaseWaveMessageBot(sleekxmpp.ClientXMPP):
 
         self.connected = False
 
-        #print('Access code:')
-        #print(access_code.encode())
-        #print('Password:')
-        #print(password.encode())
-
         abyte1 = get_md5(access_code.encode() + self.secret)
         abyte2 = get_md5(self.secret + password.encode())
 
@@ -69,9 +64,6 @@ class BaseWaveMessageBot(sleekxmpp.ClientXMPP):
         remainder = len(j) % 16
 
         j = j + '\x00' * (16 - remainder)
-
-        #print('URL: %s' % url)
-        #print('JSON: %s' % j)
 
         self.msg = "PUT %s HTTP:/1.0\nContent-Type: application/json\nContent-Length: 25\nUser-Agent: NefitEasy\n\n\n\n%s\n" % (url, self.encode(j).decode('utf-8'))
 
