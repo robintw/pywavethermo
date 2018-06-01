@@ -3,6 +3,8 @@ from Crypto.Cipher import AES
 
 import sleekxmpp
 
+import ssl
+
 from utils import get_md5
 
 class BaseWaveMessageBot(sleekxmpp.ClientXMPP):
@@ -32,7 +34,9 @@ class BaseWaveMessageBot(sleekxmpp.ClientXMPP):
 
     def connect(self):
         self.connected = True
-        return sleekxmpp.ClientXMPP.connect(self, ('wa2-mz36-qrmzh6.bosch.de', 5222))
+        return sleekxmpp.ClientXMPP.connect(self, ('wa2-mz36-qrmzh6.bosch.de', 5222),
+                                            use_ssl=False,
+                                            use_tls=False)
 
     def disconnect(self):
         self.connected = False
